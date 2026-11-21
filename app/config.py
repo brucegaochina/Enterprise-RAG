@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     chat_model: str = "gpt-4o-mini"
     embedding_model: str = "text-embedding-3-small"
     embedding_dim: int = 1536
+    # Optional separate endpoint for embeddings, e.g. Ollama at http://localhost:11434/v1.
+    # Falls back to OPENAI_BASE_URL / OPENAI_API_KEY when unset.
+    embedding_base_url: str | None = None
+    embedding_api_key: str = ""
 
     upload_dir: Path = BASE_DIR / "data" / "uploads"
     sample_docs_dir: Path = BASE_DIR / "sample_data" / "documents"
@@ -31,8 +35,12 @@ class Settings(BaseSettings):
         return bool(self.openai_api_key.strip())
 
     @property
+    def embeddings_enabled(self) -> bool:
+        return bool(self.embedding_base_url or self.embedding_api_key.strip() or self.llm_enabled)
+
+    @property
     def active_embedding_model(self) -> str:
-        return self.embedding_model if self.llm_enabled else "local-hashing-v1"
+        return self.embedding_model if self.embeddings_enabled else "local-hashing-v1"
 
     @property
     def active_chat_model(self) -> str:

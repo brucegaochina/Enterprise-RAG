@@ -118,9 +118,9 @@ async function refreshHealth() {
     const pill = $("#stackPill");
     pill.classList.toggle("online", h.llm_enabled);
     pill.classList.toggle("offline", !h.llm_enabled);
-    $("#stackText").textContent = h.llm_enabled
-      ? `${h.chat_model} · ${h.embedding_model} · pgvector`
-      : "Offline demo mode · local embeddings · pgvector";
+    const chatLabel = h.llm_enabled ? h.chat_model : "Offline answers";
+    const embedLabel = h.embeddings_enabled ? h.embedding_model : "local hashing embeddings";
+    $("#stackText").textContent = `${chatLabel} · ${embedLabel} · pgvector`;
     $("#pipelineModel").textContent = `${h.embedding_model} (${h.embedding_dim}d)`;
 
     const kb = $("#kbStatus");

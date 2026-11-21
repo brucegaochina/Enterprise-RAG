@@ -59,6 +59,7 @@ def health():
     return {
         "status": "ok",
         "llm_enabled": settings.llm_enabled,
+        "embeddings_enabled": settings.embeddings_enabled,
         "chat_model": settings.active_chat_model,
         "embedding_model": settings.active_embedding_model,
         "embedding_dim": settings.embedding_dim,

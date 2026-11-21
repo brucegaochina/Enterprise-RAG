@@ -66,7 +66,7 @@ def search(
     with pool().connection() as conn:
         if mode in ("hybrid", "vector"):
             t0 = time.perf_counter()
-            emb = get_embedder().embed([query])[0]
+            emb = get_embedder().embed([query], input_type="query")[0]
             stats.timings_ms["embed_query"] = _ms(t0)
             t0 = time.perf_counter()
             vec_hits = conn.execute(
@@ -97,7 +97,11 @@ def search(
             entry["rrf_score"] = rrf
             entry["relevance"] = rrf / best_possible if best_possible else 0.0
 
-        ranked = sorted(fused.values(), key=lambda e: e["rrf_score"], reverse=True)[:top_k]
+        # RRF ties are common (e.g. ranks 1+2 vs 2+1); break them by the semantic (vector) rank.
+        ranked = sorted(
+            fused.values(),
+            key=lambda e: (-e["rrf_score"], e.get("vector_rank", candidates + 1), e.get("keyword_rank", candidates + 1)),
+        )[:top_k]
         stats.timings_ms["fusion"] = _ms(t0)
 
         if not ranked:

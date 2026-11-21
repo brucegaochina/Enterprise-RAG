@@ -13,7 +13,7 @@ A production-style **Retrieval-Augmented Generation** system that lets employees
 | **Document ingestion** | Upload PDF, DOCX, Markdown and TXT (drag & drop, batch). Files are de-duplicated by SHA-256 and processed in a background worker with live status. |
 | **Parsing** | Layout-aware PDF extraction keeps table rows intact, removes running headers/footers and tracks page numbers. DOCX headings, lists and tables are preserved. |
 | **Chunking** | Structure-aware: splits on section headings and sentences (~900 chars, 150 overlap). Every chunk stores its section, page and character offsets. |
-| **Embeddings** | `text-embedding-3-small` (1536-d) by default, any OpenAI-compatible provider. Chunks are embedded with their document title and section as context. |
+| **Embeddings** | `text-embedding-3-small` (1536-d) by default, or open-source `nomic-embed-text` (768-d) running locally in Ollama. Any OpenAI-compatible provider works, configured separately from the chat model. Chunks are embedded with their document title and section as context, and task prefixes are applied for models that expect them. |
 | **Hybrid retrieval** | pgvector cosine similarity (HNSW index) **+** PostgreSQL full-text search (`tsvector`, GIN index), fused with **Reciprocal Rank Fusion**. |
 | **Conversational search** | Follow-ups like *"How about hearing?"* are rewritten into standalone queries using the chat history. |
 | **Grounded answers** | Streaming answers that must cite numbered sources `[1]`; citations open the source document with the exact passage highlighted. |
@@ -71,11 +71,28 @@ cp .env.example .env          # add OPENAI_API_KEY (optional, see below)
 
 ### Offline demo mode
 
-Without `OPENAI_API_KEY` the app still runs end to end. It uses a local feature-hashing embedder and an extractive answerer, so the whole pipeline can be shown without any API cost. Add a key to switch to real embeddings and LLM answers, then click **Re-index**: the UI flags documents that were embedded with a different model.
+Without any model configured the app still runs end to end. It uses a local feature-hashing embedder and an extractive answerer, so the whole pipeline can be shown without any API cost. Add `OPENAI_API_KEY` to switch to real embeddings and LLM answers, then click **Re-index**: the UI flags documents that were embedded with a different model.
+
+### Local open-source embeddings (Ollama)
+
+Embeddings can run locally and for free, independently of the chat model:
+
+```bash
+brew install ollama && ollama serve &
+ollama pull nomic-embed-text
+```
+
+```dotenv
+EMBEDDING_BASE_URL=http://localhost:11434/v1
+EMBEDDING_MODEL=nomic-embed-text
+EMBEDDING_DIM=768
+```
+
+The vector column size is fixed when the `chunks` table is created, so after changing `EMBEDDING_DIM` drop that table (`psql rag -c "DROP TABLE chunks;"`), restart the app and click **Re-index**.
 
 ### Other providers
 
-Any OpenAI-compatible endpoint works through `OPENAI_BASE_URL`, `CHAT_MODEL` and `EMBEDDING_MODEL`, including Azure OpenAI (v1 API), DeepSeek, Groq, Together, Ollama and LM Studio. If the embedding size is not 1536, set `EMBEDDING_DIM` and recreate the database.
+Any OpenAI-compatible endpoint works. The chat model uses `OPENAI_BASE_URL`, `OPENAI_API_KEY` and `CHAT_MODEL`; embeddings use `EMBEDDING_BASE_URL`, `EMBEDDING_API_KEY`, `EMBEDDING_MODEL` and `EMBEDDING_DIM`, and fall back to the chat settings when unset. This covers Azure OpenAI (v1 API), DeepSeek, Groq, Together, Ollama and LM Studio.
 
 ### Docker (optional)
 
@@ -128,12 +145,15 @@ sample_data/       20 demo documents and their markdown sources
 
 ## Screenshots
 
+Captured with `nomic-embed-text` embeddings (Ollama, 768-d) and the offline extractive answerer; with a chat model configured, the answers are written by the LLM instead.
+
 | | |
 |---|---|
-| ![Thought process](docs/screenshots/03_thought_process.png) | ![Citation](docs/screenshots/04_citation_highlight.png) |
-| ![Knowledge base](docs/screenshots/05_knowledge_base.png) | ![Retrieval lab](docs/screenshots/07_retrieval_lab.png) |
+| ![Chat home](docs/screenshots/01_chat_home.png) | ![Thought process](docs/screenshots/03_thought_process.png) |
+| ![Citation](docs/screenshots/04_citation_highlight.png) | ![Retrieval lab](docs/screenshots/07_retrieval_lab.png) |
+| ![Knowledge base](docs/screenshots/05_knowledge_base.png) | ![Chunk inspector](docs/screenshots/06_chunk_inspector.png) |
 
-Regenerate them with `pip install playwright && python scripts/take_screenshots.py` (this uses your local Chrome).
+Regenerate them with `pip install playwright && python scripts/take_screenshots.py --url http://localhost:8080` (this uses your local Chrome).
 
 ## Production notes
 
