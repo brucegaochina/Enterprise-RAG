@@ -1,0 +1,36 @@
+Learning and Development Program
+================================
+
+Owner: Helios Academy, People Operations. 2026 edition.
+
+Philosophy
+
+Learn every day is one of the Helios values. Every employee has a budget and dedicated time for learning, and managers discuss development goals during every mid-year review.
+
+Annual Learning Budget
+
+Each employee has a learning budget of $2,500 per calendar year. The budget can be used for online courses, books, workshops, and conference tickets related to your current role or a realistic future role at Helios. Unused budget does not carry over to the next year. Submit learning expenses in Expensify under the category Learning, with manager approval.
+
+Learning Days
+
+Every employee receives 5 paid learning days per year to attend training, conferences, or focused self-study. Learning days are recorded in Workday as Learning Leave and do not reduce your PTO balance.
+
+Tuition Reimbursement
+
+Helios reimburses up to $5,250 per calendar year for degree programs at accredited universities, when the program is related to the employee's role. Employees must have at least 1 year of service to apply and must get approval before the course starts. Courses must be completed with a grade of B or better. If an employee leaves Helios voluntarily within 12 months of receiving tuition reimbursement, they must repay 100% of the amount.
+
+Professional Certifications
+
+Helios pays the exam fee for approved professional certifications after you pass, including AWS, Azure, Google Cloud, CISSP, PMP, and Certified Reliability Engineer. Certification exam fees do not count against your annual learning budget. Each employee can be reimbursed for up to two certification attempts per year.
+
+Conferences
+
+Employees can attend one external conference per year with manager approval. Travel follows the Travel and Expense Policy, FIN-TE-004. Employees who speak at a conference can attend up to two conferences per year.
+
+Helios Academy
+
+Helios Academy is the internal learning platform. It offers required compliance courses, product training for every Helios product, and leadership programs. The New Manager Program is a 6-week program required within 90 days of becoming a people manager.
+
+Mentorship Program
+
+The Helios Mentorship Program matches employees with mentors from other departments for 6-month cycles that start in February and August. Applications open one month before each cycle.

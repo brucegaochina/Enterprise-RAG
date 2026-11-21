@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Helios Knowledge Assistant · Enterprise RAG</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234f46e5'/><path d='M16 6l3 7 7 3-7 3-3 7-3-7-7-3 7-3z' fill='white'/></svg>" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span class="brand-name">Helios Knowledge Assistant</span>
+      <span class="brand-sep">|</span>
+      <span class="brand-sub">Enterprise RAG</span>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" data-view="chat">Chat</button>
+      <button class="nav-btn" data-view="docs">Knowledge Base</button>
+      <button class="nav-btn" data-view="lab">Retrieval Lab</button>
+    </nav>
+    <div class="stack" id="stackPill">
+      <span class="dot"></span><span id="stackText">Connecting…</span>
+    </div>
+  </header>
+
+  <!-- ============================== CHAT ============================== -->
+  <section class="view active" id="view-chat">
+    <div class="chat-toolbar">
+      <div class="kb-status" id="kbStatus"></div>
+      <div class="toolbar-actions">
+        <button class="ghost-btn" id="clearChat"><i data-icon="trash"></i>Clear chat</button>
+        <button class="ghost-btn" id="openSettings"><i data-icon="gear"></i>Developer settings</button>
+      </div>
+    </div>
+
+    <div class="chat-layout">
+      <div class="chat-col">
+        <div class="messages" id="messages">
+          <div class="empty" id="emptyState">
+            <div class="empty-mark"></div>
+            <h1>Chat with your enterprise data</h1>
+            <p>Ask questions about HR, IT, security, finance and product documents.<br />
+              Every answer is grounded in retrieved passages and cites its sources.</p>
+            <div class="examples" id="examples"></div>
+          </div>
+        </div>
+        <form class="composer" id="composer">
+          <textarea id="question" rows="1" placeholder="Type a new question (e.g. does my plan cover annual eye exams?)"></textarea>
+          <button type="submit" id="sendBtn" title="Send"><i data-icon="send"></i></button>
+        </form>
+      </div>
+
+      <aside class="analysis hidden" id="analysis">
+        <div class="analysis-head">
+          <div class="tabs" role="tablist">
+            <button class="tab" data-tab="thought">Thought process</button>
+            <button class="tab" data-tab="sources">Supporting content</button>
+            <button class="tab" data-tab="citation">Citation</button>
+          </div>
+          <button class="icon-btn" id="closeAnalysis" title="Close"><i data-icon="x"></i></button>
+        </div>
+        <div class="analysis-body" id="analysisBody"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================== DOCUMENTS ============================== -->
+  <section class="view" id="view-docs">
+    <div class="page">
+      <div class="page-head">
+        <div>
+          <h2>Knowledge Base</h2>
+          <p class="muted">Upload documents to parse, chunk, embed and index them in PostgreSQL + pgvector.</p>
+        </div>
+        <div class="page-actions">
+          <button class="secondary-btn" id="loadSamples"><i data-icon="spark"></i>Load 20 sample documents</button>
+          <button class="ghost-btn" id="reindexAll"><i data-icon="refresh"></i>Re-index</button>
+          <button class="ghost-btn danger" id="deleteAll"><i data-icon="trash"></i>Delete all</button>
+        </div>
+      </div>
+
+      <div class="banner hidden" id="staleBanner"></div>
+
+      <div class="stats" id="docStats"></div>
+
+      <div class="pipeline">
+        <div class="step"><i data-icon="upload"></i><b>Upload</b><span>PDF · DOCX · MD · TXT</span></div>
+        <div class="arrow"></div>
+        <div class="step"><i data-icon="file"></i><b>Parse</b><span>text + page map, header/footer removal</span></div>
+        <div class="arrow"></div>
+        <div class="step"><i data-icon="layers"></i><b>Chunk</b><span>structure-aware, with overlap</span></div>
+        <div class="arrow"></div>
+        <div class="step"><i data-icon="cpu"></i><b>Embed</b><span id="pipelineModel">embedding model</span></div>
+        <div class="arrow"></div>
+        <div class="step"><i data-icon="db"></i><b>Index</b><span>HNSW (vector) + GIN (full-text)</span></div>
+      </div>
+
+      <label class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" multiple accept=".pdf,.docx,.md,.markdown,.txt" hidden />
+        <i data-icon="upload"></i>
+        <div><b>Drag &amp; drop files here</b> or click to browse</div>
+        <div class="muted small">PDF, DOCX, Markdown and TXT · up to 20 MB each · duplicates are detected by SHA-256</div>
+      </label>
+
+      <div class="table-wrap">
+        <table class="doc-table">
+          <thead>
+            <tr><th>Document</th><th>Type</th><th>Pages</th><th>Chunks</th><th>Size</th><th>Status</th><th>Time</th><th></th></tr>
+          </thead>
+          <tbody id="docRows"></tbody>
+        </table>
+        <div class="table-empty hidden" id="docEmpty">No documents yet. Upload files or load the sample set.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== RETRIEVAL LAB ============================== -->
+  <section class="view" id="view-lab">
+    <div class="page">
+      <div class="page-head">
+        <div>
+          <h2>Retrieval Lab</h2>
+          <p class="muted">Compare vector search, keyword search and hybrid fusion (RRF) side by side for the same query.</p>
+        </div>
+      </div>
+      <form class="lab-form" id="labForm">
+        <input id="labQuery" placeholder="e.g. HX-220 offline storage, or: what happens if I lose my laptop?" />
+        <select id="labTopK">
+          <option value="5">Top 5</option><option value="8" selected>Top 8</option><option value="10">Top 10</option>
+        </select>
+        <button class="primary-btn" type="submit"><i data-icon="search"></i>Compare</button>
+      </form>
+      <div class="lab-examples" id="labExamples"></div>
+      <div class="lab-grid" id="labGrid"></div>
+    </div>
+  </section>
+
+  <!-- ============================== SETTINGS DRAWER ============================== -->
+  <div class="overlay hidden" id="overlay"></div>
+  <aside class="drawer" id="settingsDrawer">
+    <div class="drawer-head">
+      <h3>Developer settings</h3>
+      <button class="icon-btn" id="closeSettings"><i data-icon="x"></i></button>
+    </div>
+    <div class="drawer-body">
+      <div class="field">
+        <label>Retrieval mode</label>
+        <div class="segmented" id="modeSeg">
+          <button data-mode="hybrid">Hybrid</button><button data-mode="vector">Vector</button><button data-mode="keyword">Keyword</button>
+        </div>
+        <p class="hint">Hybrid fuses pgvector cosine similarity and PostgreSQL full-text ranking with Reciprocal Rank Fusion.</p>
+      </div>
+      <div class="field">
+        <label>Sources sent to the LLM (top K): <b id="topKVal"></b></label>
+        <input type="range" id="topK" min="1" max="10" />
+      </div>
+      <div class="field">
+        <label>Candidates per retriever: <b id="candVal"></b></label>
+        <input type="range" id="candidates" min="5" max="50" step="5" />
+      </div>
+      <div class="field">
+        <label>RRF constant k: <b id="rrfVal"></b></label>
+        <input type="range" id="rrfK" min="1" max="120" />
+        <p class="hint">score = Σ 1 / (k + rank). Smaller k rewards top ranks more.</p>
+      </div>
+      <div class="field">
+        <label>Temperature: <b id="tempVal"></b></label>
+        <input type="range" id="temperature" min="0" max="1" step="0.1" />
+      </div>
+      <div class="field checkbox">
+        <input type="checkbox" id="queryRewrite" />
+        <label for="queryRewrite">Rewrite follow-up questions into standalone search queries</label>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <button class="ghost-btn" id="resetSettings">Reset defaults</button>
+      <button class="primary-btn" id="saveSettings">Done</button>
+    </div>
+  </aside>
+
+  <!-- ============================== CHUNK MODAL ============================== -->
+  <div class="modal hidden" id="chunkModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h3 id="chunkModalTitle">Chunks</h3>
+          <p class="muted small" id="chunkModalSub"></p>
+        </div>
+        <button class="icon-btn" id="closeChunkModal"><i data-icon="x"></i></button>
+      </div>
+      <div class="modal-body" id="chunkModalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+# IT Helpdesk Frequently Asked Questions
+
+Owner: IT Service Desk. Updated May 2026.
+
+## How do I contact the IT Helpdesk?
+
+The IT Helpdesk is available 24 hours a day, Monday through Friday, and for P1 issues on weekends. Contact us in the #it-help Slack channel, by phone at extension 4357 (H-E-L-P), or by opening a ticket in the ServiceNow portal.
+
+## What are the ticket priorities and response times?
+
+P1 (critical, many users affected or a production outage): response within 15 minutes. P2 (high, one user cannot work): response within 1 hour. P3 (normal): response within 1 business day. P4 (requests and questions): response within 3 business days.
+
+## How do I reset my password?
+
+Use Okta self-service at login.heliosdynamics.example and select Forgot password. You will need your Okta Verify app or YubiKey. If you have lost your MFA device, call the Helpdesk; for security reasons, we will verify your identity on a video call before resetting MFA.
+
+## How do I connect to the VPN?
+
+Open the GlobalProtect app and connect to the portal vpn.heliosdynamics.example. The VPN is required for internal systems when you are outside a Helios office. If the connection fails, restart GlobalProtect and confirm that your device is enrolled in Jamf or Intune.
+
+## Which Wi-Fi network should I use in the office?
+
+Employees should connect company laptops to Helios-Corp, which uses certificate-based authentication and connects automatically. Personal phones and visitors should use Helios-Guest. The Helios-Guest network does not have access to internal systems.
+
+## When will my laptop be replaced?
+
+Laptops are replaced every 3 years. Standard laptops are a 14-inch MacBook Pro or a Dell Latitude 7450. Engineers and data scientists can request a 16-inch MacBook Pro with 48 GB of memory. You can request an early replacement if your laptop is damaged or no longer meets your job requirements.
+
+## What should I do if my laptop is lost or stolen?
+
+Report it within 1 hour in #sec-incidents or by calling extension 4357. IT will lock and wipe the device remotely. If the device was stolen, file a police report and attach it to the ServiceNow ticket.
+
+## How do I install software?
+
+Most approved applications are available in Self Service (macOS) or Company Portal (Windows). Software that is not listed can be requested through the Software Request form in ServiceNow. Do not install unapproved software.
+
+## How do I print?
+
+Printers in every office are available through the PaperCut queue Helios-Print. Release print jobs by tapping your badge on the printer. Color printing is limited to 200 pages per month per employee.
+
+## Can I use my personal phone for work?
+
+Yes. Install the Okta Verify, Slack, and Outlook apps from the company portal on your phone. Personal phones that access company email must have a passcode and must be enrolled in Intune app protection. Helios reimburses $40 per month for work use of personal phones.
